@@ -1,0 +1,15 @@
+apply plugin: 'java'
+apply plugin: 'kotlin'
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+
+    testCompile project(":konspekt")
+    testCompile("org.assertj:assertj-core:3.11.1")
+}
+
+test {
+    useJUnitPlatform {
+        includeEngines "konspekt"
+    }
+}
