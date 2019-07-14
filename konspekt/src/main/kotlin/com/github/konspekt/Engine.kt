@@ -60,7 +60,7 @@ class Engine : HierarchicalTestEngine<EngineExecutionContext>() {
         val specId = rootId.childId(ExampleGroupNode.TYPE, specName)
         val specSource = ClassSource.from(spec.javaClass)
 
-        return ExampleGroupNode(specId, specName, { }, specSource).also {
+        return ExampleGroupNode(specId, specName, specSource).also {
             spec.action.invoke(it)
         }
     }

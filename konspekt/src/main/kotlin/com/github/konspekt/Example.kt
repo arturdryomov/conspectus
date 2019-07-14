@@ -1,6 +1,7 @@
 package com.github.konspekt
 
 import org.junit.platform.engine.TestDescriptor
+import org.junit.platform.engine.TestSource
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
 import org.junit.platform.engine.support.hierarchical.Node
@@ -11,8 +12,9 @@ interface Example
 class ExampleNode(
         id: UniqueId,
         name: String,
+        source: TestSource,
         private val action: Example.() -> Unit
-) : Example, Node<EngineExecutionContext>, AbstractTestDescriptor(id, name) {
+) : Example, Node<EngineExecutionContext>, AbstractTestDescriptor(id, name, source) {
 
     companion object {
         val TYPE = TestDescriptor.Type.TEST

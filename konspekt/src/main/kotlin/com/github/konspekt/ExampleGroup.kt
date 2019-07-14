@@ -4,7 +4,10 @@ import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestSource
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
+import org.junit.platform.engine.support.descriptor.FilePosition
+import org.junit.platform.engine.support.descriptor.FileSource
 import org.junit.platform.engine.support.hierarchical.Node
+import java.io.File
 
 @Dsl
 interface ExampleGroup {
@@ -20,8 +23,8 @@ interface ExampleGroup {
 class ExampleGroupNode(
         id: UniqueId,
         name: String,
-        private val action: ExampleGroup.() -> Unit = {},
-        source: TestSource? = null
+        source: TestSource,
+        private val action: ExampleGroup.() -> Unit = {}
 ) : ExampleGroup, Node<EngineExecutionContext>, AbstractTestDescriptor(id, name, source) {
 
     companion object {
@@ -31,17 +34,32 @@ class ExampleGroupNode(
     override fun getType() = TYPE
 
     override fun example(name: String, action: Example.() -> Unit) {
-        val child = ExampleNode(uniqueId.childId(ExampleNode.TYPE, name), name, action)
+        val child = ExampleNode(uniqueId.childId(ExampleNode.TYPE, name), name, source(), action)
 
         addChild(child)
     }
 
     override fun exampleGroup(name: String, action: ExampleGroup.() -> Unit) {
-        val child = ExampleGroupNode(uniqueId.childId(TYPE, name), name, action).also {
+        val child = ExampleGroupNode(uniqueId.childId(TYPE, name), name, source(), action).also {
             it.action.invoke(it)
         }
 
         addChild(child)
+    }
+
+    private fun source(): TestSource {
+        // 0: Thread#stackTrace
+        // 1: ExampleGroup#source
+        // 2: ExampleGroup#exampleGroup or ExampleGroup#example
+        // 3: DSL invocation
+        val stackTrace = Thread.currentThread().stackTrace[3]
+
+        val file = File(stackTrace.fileName)
+        val filePosition = FilePosition.from(stackTrace.lineNumber)
+
+        // IJ ignores file position for every source except the file one.
+        // Reference: JUnit5TestExecutionListener#getLocationHintValue
+        return FileSource.from(file, filePosition)
     }
 
     private val beforeEachActions = mutableSetOf<() -> Unit>()
