@@ -36,7 +36,7 @@ class ExampleGroupNode(
     override fun example(name: String, action: Example.() -> Unit) {
         val child = ExampleNode(uniqueId.childId(ExampleNode.TYPE, name), name, source(), action)
 
-        addChild(child)
+        appendChild(child)
     }
 
     override fun exampleGroup(name: String, action: ExampleGroup.() -> Unit) {
@@ -44,7 +44,20 @@ class ExampleGroupNode(
             it.action.invoke(it)
         }
 
-        addChild(child)
+        appendChild(child)
+    }
+
+    private fun appendChild(child: TestDescriptor) {
+        if (children.any { it.uniqueId == child.uniqueId }) {
+            val kind = when (child.type) {
+                TestDescriptor.Type.CONTAINER -> "Example group"
+                else -> "Example"
+            }
+
+            throw IllegalStateException("$kind [${child.displayName}] already exists on the same hierarchy level. This is blocked to avoid possible confusion.")
+        } else {
+            addChild(child)
+        }
     }
 
     private fun source(): TestSource {
