@@ -33,12 +33,6 @@ class ExampleGroupNode(
 
     override fun getType() = TYPE
 
-    override fun example(name: String, action: Example.() -> Unit) {
-        val child = ExampleNode(uniqueId.childId(ExampleNode.TYPE, name), name, source(), action)
-
-        appendChild(child)
-    }
-
     override fun exampleGroup(name: String, action: ExampleGroup.() -> Unit) {
         val child = ExampleGroupNode(uniqueId.childId(TYPE, name), name, source(), action).also {
             it.action.invoke(it)
@@ -47,17 +41,10 @@ class ExampleGroupNode(
         appendChild(child)
     }
 
-    private fun appendChild(child: TestDescriptor) {
-        if (children.any { it.uniqueId == child.uniqueId }) {
-            val kind = when (child.type) {
-                TestDescriptor.Type.CONTAINER -> "Example group"
-                else -> "Example"
-            }
+    override fun example(name: String, action: Example.() -> Unit) {
+        val child = ExampleNode(uniqueId.childId(ExampleNode.TYPE, name), name, source(), action)
 
-            throw IllegalStateException("$kind [${child.displayName}] already exists on the same hierarchy level. This is blocked to avoid possible confusion.")
-        } else {
-            addChild(child)
-        }
+        appendChild(child)
     }
 
     private fun source(): TestSource {
@@ -75,34 +62,38 @@ class ExampleGroupNode(
         return FileSource.from(file, filePosition)
     }
 
-    private val beforeEachActions = mutableSetOf<() -> Unit>()
-    private val afterEachActions = mutableSetOf<() -> Unit>()
-
-    override fun beforeEach(action: () -> Unit) {
-        beforeEachActions.add(action)
+    private fun appendChild(child: TestDescriptor) {
+        if (children.any { it.displayName == child.displayName }) {
+            throw IllegalStateException("[${child.displayName}] repeating on the same hierarchy level. This is blocked to avoid possible confusion.")
+        } else {
+            addChild(child)
+        }
     }
 
-    override fun afterEach(action: () -> Unit) {
-        afterEachActions.add(action)
-    }
-
-    fun executeBeforeEach() {
-        beforeEachActions.forEach { it.invoke() }
-    }
-
-    fun executeAfterEach() {
-        afterEachActions.forEach { it.invoke() }
-
-        memoizedStorage.forEach { it.reset() }
-    }
+    private val beforeEachStorage = mutableSetOf<() -> Unit>()
+    private val afterEachStorage = mutableSetOf<() -> Unit>()
 
     private val memoizedStorage = mutableSetOf<Memoized<Any>>()
 
-    override fun <T : Any> memoized(creator: () -> T): Memoized<T> {
-        val result = Memoized(creator)
+    override fun beforeEach(action: () -> Unit) {
+        beforeEachStorage.add(action)
+    }
 
-        memoizedStorage.add(result)
+    override fun afterEach(action: () -> Unit) {
+        afterEachStorage.add(action)
+    }
 
-        return result
+    override fun <T : Any> memoized(creator: () -> T): Memoized<T> = Memoized(creator).apply {
+        memoizedStorage.add(this)
+    }
+
+    fun executeBeforeEach() {
+        beforeEachStorage.forEach { it.invoke() }
+    }
+
+    fun executeAfterEach() {
+        afterEachStorage.forEach { it.invoke() }
+
+        memoizedStorage.forEach { it.reset() }
     }
 }

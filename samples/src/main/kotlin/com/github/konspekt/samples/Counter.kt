@@ -9,16 +9,18 @@ interface Counter {
 
     fun current(): Int
 
-    class Impl : Counter {
+    class Impl(private val analytics: Analytics) : Counter {
 
         private val current = AtomicInteger(0)
 
         override fun increment() {
             current.incrementAndGet()
+            analytics.trackEvent(Analytics.Event.CounterIncrement)
         }
 
         override fun decrement() {
             current.decrementAndGet()
+            analytics.trackEvent(Analytics.Event.CounterDecrement)
         }
 
         override fun current() = current.get()
