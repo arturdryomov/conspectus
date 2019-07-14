@@ -1,5 +1,6 @@
-package com.github.konspekt
+package com.github.konspekt.engine
 
+import com.github.konspekt.Spec
 import org.junit.platform.commons.util.ClassFilter
 import org.junit.platform.commons.util.ReflectionUtils
 import org.junit.platform.engine.EngineDiscoveryRequest

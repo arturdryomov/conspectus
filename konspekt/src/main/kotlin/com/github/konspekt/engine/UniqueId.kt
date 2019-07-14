@@ -1,4 +1,4 @@
-package com.github.konspekt
+package com.github.konspekt.engine
 
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.UniqueId

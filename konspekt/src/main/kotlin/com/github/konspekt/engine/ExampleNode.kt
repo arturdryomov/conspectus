@@ -1,13 +1,11 @@
-package com.github.konspekt
+package com.github.konspekt.engine
 
+import com.github.konspekt.Example
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestSource
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
 import org.junit.platform.engine.support.hierarchical.Node
-
-@Dsl
-interface Example
 
 class ExampleNode(
         id: UniqueId,

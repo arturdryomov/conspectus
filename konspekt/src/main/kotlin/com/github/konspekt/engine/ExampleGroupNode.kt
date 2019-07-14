@@ -1,5 +1,8 @@
-package com.github.konspekt
+package com.github.konspekt.engine
 
+import com.github.konspekt.Example
+import com.github.konspekt.ExampleGroup
+import com.github.konspekt.Memoized
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestSource
 import org.junit.platform.engine.UniqueId
@@ -8,17 +11,6 @@ import org.junit.platform.engine.support.descriptor.FilePosition
 import org.junit.platform.engine.support.descriptor.FileSource
 import org.junit.platform.engine.support.hierarchical.Node
 import java.io.File
-
-@Dsl
-interface ExampleGroup {
-    fun <T : Any> memoized(creator: () -> T): Memoized<T>
-
-    fun example(name: String, action: Example.() -> Unit)
-    fun exampleGroup(name: String, action: ExampleGroup.() -> Unit)
-
-    fun beforeEach(action: () -> Unit)
-    fun afterEach(action: () -> Unit)
-}
 
 class ExampleGroupNode(
         id: UniqueId,
