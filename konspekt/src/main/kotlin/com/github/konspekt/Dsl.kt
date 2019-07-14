@@ -15,6 +15,10 @@ interface ExampleGroup {
     fun example(name: String, action: Example.() -> Unit)
     fun exampleGroup(name: String, action: ExampleGroup.() -> Unit)
 
+    fun describe(name: String, action: ExampleGroup.() -> Unit) = exampleGroup(name, action)
+    fun context(name: String, action: ExampleGroup.() -> Unit) = exampleGroup(name, action)
+    fun it(name: String, action: Example.() -> Unit) = example(name, action)
+
     fun beforeEach(action: () -> Unit)
     fun afterEach(action: () -> Unit)
 }

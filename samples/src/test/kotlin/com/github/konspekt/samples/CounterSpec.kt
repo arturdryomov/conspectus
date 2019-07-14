@@ -10,29 +10,29 @@ class CounterSpec : Spec({
 
     val env by memoized { Environment() }
 
-    example("value is 0") {
+    it("value is 0") {
         assertThat(env.counter.current()).isZero()
     }
 
-    example("does not track analytics event") {
+    it("does not track analytics event") {
         verifyZeroInteractions(env.analytics)
     }
 
-    exampleGroup("increment") {
+    context("increment") {
 
         beforeEach {
             env.counter.increment()
         }
 
-        example("changes value to 1") {
+        it("changes value to 1") {
             assertThat(env.counter.current()).isEqualTo(1)
         }
 
-        example("tracks analytics event") {
+        it("tracks analytics event") {
             verifyOnly(env.analytics).trackEvent(Analytics.Event.CounterIncrement)
         }
 
-        exampleGroup("decrement") {
+        context("decrement") {
 
             beforeEach {
                 clearInvocations(env.analytics)
@@ -40,31 +40,31 @@ class CounterSpec : Spec({
                 env.counter.decrement()
             }
 
-            example("changes value to 0") {
+            it("changes value to 0") {
                 assertThat(env.counter.current()).isZero()
             }
 
-            example("tracks analytics event") {
+            it("tracks analytics event") {
                 verifyOnly(env.analytics).trackEvent(Analytics.Event.CounterDecrement)
             }
         }
     }
 
-    exampleGroup("decrement") {
+    context("decrement") {
 
         beforeEach {
             env.counter.decrement()
         }
 
-        example("changes value to -1") {
+        it("changes value to -1") {
             assertThat(env.counter.current()).isEqualTo(-1)
         }
 
-        example("tracks analytics event") {
+        it("tracks analytics event") {
             verifyOnly(env.analytics).trackEvent(Analytics.Event.CounterDecrement)
         }
 
-        exampleGroup("increment") {
+        context("increment") {
 
             beforeEach {
                 clearInvocations(env.analytics)
@@ -72,11 +72,11 @@ class CounterSpec : Spec({
                 env.counter.increment()
             }
 
-            example("changes value to 0") {
+            it("changes value to 0") {
                 assertThat(env.counter.current()).isZero()
             }
 
-            example("tracks analytics event") {
+            it("tracks analytics event") {
                 verifyOnly(env.analytics).trackEvent(Analytics.Event.CounterIncrement)
             }
         }
