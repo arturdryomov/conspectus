@@ -10,7 +10,7 @@ class CounterSpec : Spec({
 
     val env by memoized { Environment() }
 
-    it("value is 0") {
+    it("has value of 0") {
         assertThat(env.counter.current()).isZero()
     }
 
