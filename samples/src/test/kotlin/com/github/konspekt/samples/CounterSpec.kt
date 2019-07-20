@@ -2,10 +2,8 @@ package com.github.konspekt.samples
 
 import com.github.konspekt.Spec
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.platform.commons.annotation.Testable
 import org.mockito.Mockito.*
 
-@Testable
 class CounterSpec : Spec({
 
     val env by memoized { Environment() }
