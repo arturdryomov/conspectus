@@ -40,18 +40,20 @@ class ExampleGroupNode(
     }
 
     private fun source(): TestSource {
-        // 0: Thread#stackTrace
-        // 1: ExampleGroup#source
-        // 2: ExampleGroup#exampleGroup or ExampleGroup#example
-        // 3: DSL invocation
-        val stackTrace = Thread.currentThread().stackTrace[3]
+        // Actions are lambdas so we are looking until we find one.
+        val stackTrace = Thread.currentThread().stackTrace.find { it.methodName == "invoke" }
 
-        val file = File(stackTrace.fileName)
-        val filePosition = FilePosition.from(stackTrace.lineNumber)
+        return if (stackTrace == null) {
+            return source.get()
+        } else {
+            val file = File(stackTrace.fileName)
+            val filePosition = FilePosition.from(stackTrace.lineNumber)
 
-        // IJ ignores file position for every source except the file one.
-        // Reference: JUnit5TestExecutionListener#getLocationHintValue
-        return FileSource.from(file, filePosition)
+            // IJ ignores file position for every source except the file one.
+            // Reference: JUnit5TestExecutionListener#getLocationHintValue
+            // https://youtrack.jetbrains.com/issue/IDEA-218420
+            FileSource.from(file, filePosition)
+        }
     }
 
     private fun appendChild(child: TestDescriptor) {
