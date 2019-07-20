@@ -7,8 +7,7 @@ import org.junit.platform.engine.EngineDiscoveryRequest
 import org.junit.platform.engine.ExecutionRequest
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.UniqueId
-import org.junit.platform.engine.discovery.ClassSelector
-import org.junit.platform.engine.discovery.PackageSelector
+import org.junit.platform.engine.discovery.*
 import org.junit.platform.engine.support.descriptor.ClassSource
 import org.junit.platform.engine.support.descriptor.EngineDescriptor
 import org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine
@@ -38,20 +37,28 @@ class Engine : HierarchicalTestEngine<EngineExecutionContext>() {
     }
 
     private fun discoverSpecs(request: EngineDiscoveryRequest): List<Spec> {
-        val classSelectorClasses = request.getSelectorsByType(ClassSelector::class.java)
-                .map { it.javaClass }
+        val classFilter = ClassFilter.of { Spec::class.java.isAssignableFrom(it) }
 
-        val packageSelectorClasses = request.getSelectorsByType(PackageSelector::class.java)
-                .map { selector ->
-                    ReflectionUtils.findAllClassesInPackage(selector.packageName, ClassFilter.of {
-                        Spec::class.java.isAssignableFrom(it)
-                    })
-                }
+        val classNameFilters = request.getFiltersByType(ClassNameFilter::class.java)
+        val packageNameFilters = request.getFiltersByType(PackageNameFilter::class.java)
+
+        val classpathRootSelectorClasses = request.getSelectorsByType(ClasspathRootSelector::class.java)
+                .map { ReflectionUtils.findAllClassesInClasspathRoot(it.classpathRoot, classFilter) }
                 .flatten()
 
-        val classes = classSelectorClasses + packageSelectorClasses
+        val packageSelectorClasses = request.getSelectorsByType(PackageSelector::class.java)
+                .map { ReflectionUtils.findAllClassesInPackage(it.packageName, classFilter) }
+                .flatten()
+
+        val classSelectorClasses = request.getSelectorsByType(ClassSelector::class.java)
+                .map { it.javaClass }
+                .filter { classFilter.match(it) }
+
+        val classes = classpathRootSelectorClasses + packageSelectorClasses + classSelectorClasses
 
         return classes
+                .filter { javaClass -> classNameFilters.all { it.apply(javaClass.name).included() } }
+                .filter { javaClass -> packageNameFilters.all { it.apply(javaClass.`package`.name).included() } }
                 .filter { !ReflectionUtils.isAbstract(it) }
                 .map { ReflectionUtils.newInstance(it) as Spec }
     }
