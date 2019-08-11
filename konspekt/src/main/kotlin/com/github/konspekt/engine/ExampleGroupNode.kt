@@ -12,7 +12,7 @@ import org.junit.platform.engine.support.descriptor.FileSource
 import org.junit.platform.engine.support.hierarchical.Node
 import java.io.File
 
-class ExampleGroupNode(
+internal class ExampleGroupNode(
         id: UniqueId,
         name: String,
         source: TestSource,

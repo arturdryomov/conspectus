@@ -13,9 +13,9 @@ import org.junit.platform.engine.support.descriptor.EngineDescriptor
 import org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine
 import org.junit.platform.engine.support.hierarchical.EngineExecutionContext as JUnitEngineExecutionContext
 
-class EngineExecutionContext : JUnitEngineExecutionContext
+internal class EngineExecutionContext : JUnitEngineExecutionContext
 
-class Engine : HierarchicalTestEngine<EngineExecutionContext>() {
+internal class Engine : HierarchicalTestEngine<EngineExecutionContext>() {
 
     companion object {
         private const val ID = "konspekt"

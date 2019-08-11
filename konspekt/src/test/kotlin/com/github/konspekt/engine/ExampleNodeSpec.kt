@@ -80,7 +80,7 @@ class ExampleNodeSpec : Spec({
         }
 
         val nodeAction = mock<Example.() -> Unit>()
-        val node = ExampleNode(ID, "Node", SOURCE, nodeAction)
+        internal val node = ExampleNode(ID, "Node", SOURCE, nodeAction)
 
         init {
             nodeParent.setParent(nodeGrandParent)

@@ -87,7 +87,7 @@ class ExampleGroupNodeSpec : Spec({
         val nodeBeforeEach = mock<() -> Unit>()
         val nodeAfterEach = mock<() -> Unit>()
 
-        val node = (ExampleGroupNode(ID, "Group Node", SOURCE) {}).apply {
+        internal val node = (ExampleGroupNode(ID, "Group Node", SOURCE) {}).apply {
             beforeEach(nodeBeforeEach)
             afterEach(nodeAfterEach)
         }

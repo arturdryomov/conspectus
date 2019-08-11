@@ -7,7 +7,7 @@ import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
 import org.junit.platform.engine.support.hierarchical.Node
 
-class ExampleNode(
+internal class ExampleNode(
         id: UniqueId,
         name: String,
         source: TestSource,
