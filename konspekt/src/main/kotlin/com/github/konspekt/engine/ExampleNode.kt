@@ -24,7 +24,7 @@ class ExampleNode(
 
     override fun getType() = TYPE
 
-    override fun before(context: EngineExecutionContext?): EngineExecutionContext {
+    override fun before(context: EngineExecutionContext): EngineExecutionContext {
         parentGroups.reversed().forEach { it.executeBeforeEach() }
 
         return super.before(context)
@@ -36,7 +36,7 @@ class ExampleNode(
         return super.execute(context, dynamicTestExecutor)
     }
 
-    override fun after(context: EngineExecutionContext?) {
+    override fun after(context: EngineExecutionContext) {
         super.after(context)
 
         parentGroups.forEach { it.executeAfterEach() }

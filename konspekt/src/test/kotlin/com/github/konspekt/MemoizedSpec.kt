@@ -1,7 +1,5 @@
-package com.github.konspekt.engine
+package com.github.konspekt
 
-import com.github.konspekt.Memoized
-import com.github.konspekt.Spec
 import org.assertj.core.api.Assertions.assertThat
 import org.mockito.Mockito.*
 
