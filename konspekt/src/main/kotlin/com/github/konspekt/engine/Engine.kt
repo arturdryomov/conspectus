@@ -8,10 +8,13 @@ import org.junit.platform.engine.EngineDiscoveryRequest
 import org.junit.platform.engine.ExecutionRequest
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.UniqueId
-import org.junit.platform.engine.discovery.*
+import org.junit.platform.engine.discovery.ClassSelector
 import org.junit.platform.engine.support.descriptor.ClassSource
 import org.junit.platform.engine.support.descriptor.EngineDescriptor
+import org.junit.platform.engine.support.discovery.EngineDiscoveryRequestResolver
+import org.junit.platform.engine.support.discovery.SelectorResolver
 import org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine
+import java.util.*
 import org.junit.platform.engine.support.hierarchical.EngineExecutionContext as JUnitEngineExecutionContext
 
 internal data class EngineExecutionContext(val markersAvailable: Set<Marker>) : JUnitEngineExecutionContext
@@ -27,52 +30,48 @@ internal class Engine : HierarchicalTestEngine<EngineExecutionContext>() {
 
     override fun getId() = ID
 
-    override fun discover(request: EngineDiscoveryRequest, rootId: UniqueId): TestDescriptor {
-        val root = EngineDescriptor(rootId, NAME)
+    override fun discover(request: EngineDiscoveryRequest, rootId: UniqueId) = EngineDescriptor(rootId, NAME).apply {
+        discover(this, request)
 
-        discoverSpecs(request)
-                .map { createSpecRoot(rootId, it) }
-                .forEach { root.addChild(it) }
-
-        markersAvailable = Marker.values().filter { root.markerAvailable(marker = it) }.toSet()
-
-        return root
+        markersAvailable = Marker.values().filter { this.markerAvailable(marker = it) }.toSet()
     }
 
-    private fun discoverSpecs(request: EngineDiscoveryRequest): List<Spec> {
-        val classFilter = ClassFilter.of { Spec::class.java.isAssignableFrom(it) }
+    private fun discover(root: EngineDescriptor, request: EngineDiscoveryRequest) {
+        val classFilter = ClassFilter.of {
+            Spec::class.java.isAssignableFrom(it) && !ReflectionUtils.isAbstract(it)
+        }
 
-        val classNameFilters = request.getFiltersByType(ClassNameFilter::class.java)
-        val packageNameFilters = request.getFiltersByType(PackageNameFilter::class.java)
-
-        val classpathRootSelectorClasses = request.getSelectorsByType(ClasspathRootSelector::class.java)
-                .map { ReflectionUtils.findAllClassesInClasspathRoot(it.classpathRoot, classFilter) }
-                .flatten()
-
-        val packageSelectorClasses = request.getSelectorsByType(PackageSelector::class.java)
-                .map { ReflectionUtils.findAllClassesInPackage(it.packageName, classFilter) }
-                .flatten()
-
-        val classSelectorClasses = request.getSelectorsByType(ClassSelector::class.java)
-                .map { it.javaClass }
-                .filter { classFilter.match(it) }
-
-        val classes = classpathRootSelectorClasses + packageSelectorClasses + classSelectorClasses
-
-        return classes
-                .filter { javaClass -> classNameFilters.all { it.apply(javaClass.name).included() } }
-                .filter { javaClass -> packageNameFilters.all { it.apply(javaClass.`package`.name).included() } }
-                .filter { !ReflectionUtils.isAbstract(it) }
-                .map { ReflectionUtils.newInstance(it) as Spec }
+        EngineDiscoveryRequestResolver.builder<EngineDescriptor>()
+                .addClassContainerSelectorResolver(classFilter)
+                .addSelectorResolver(SpecClassResolver(classFilter))
+                .build()
+                .resolve(request, root)
     }
 
-    private fun createSpecRoot(rootId: UniqueId, spec: Spec): ExampleGroupNode {
-        val specName = spec.javaClass.simpleName
-        val specId = rootId.childId(ExampleGroupNode.TYPE, specName)
-        val specSource = ClassSource.from(spec.javaClass)
+    private class SpecClassResolver(private val classFilter: ClassFilter) : SelectorResolver {
 
-        return ExampleGroupNode(specId, specName, specSource).also {
-            spec.action.invoke(it)
+        override fun resolve(selector: ClassSelector, context: SelectorResolver.Context): SelectorResolver.Resolution {
+            return if (classFilter.match(selector.javaClass)) {
+                val descriptor = context.addToParent { parent ->
+                    val spec = ReflectionUtils.newInstance(selector.javaClass) as Spec
+
+                    Optional.of(createSpecDescriptor(parent.uniqueId, spec))
+                }
+
+                SelectorResolver.Resolution.match(SelectorResolver.Match.exact(descriptor.get()))
+            } else {
+                SelectorResolver.Resolution.unresolved()
+            }
+        }
+
+        private fun createSpecDescriptor(rootId: UniqueId, spec: Spec): TestDescriptor {
+            val name = spec.javaClass.simpleName
+            val id = rootId.childId(ExampleGroupNode.TYPE, name)
+            val source = ClassSource.from(spec.javaClass)
+
+            return ExampleGroupNode(id, name, source).also {
+                spec.action.invoke(it)
+            }
         }
     }
 
