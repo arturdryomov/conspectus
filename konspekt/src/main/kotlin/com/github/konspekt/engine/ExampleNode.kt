@@ -1,6 +1,7 @@
 package com.github.konspekt.engine
 
 import com.github.konspekt.Example
+import com.github.konspekt.Marker
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestSource
 import org.junit.platform.engine.UniqueId
@@ -11,8 +12,9 @@ internal class ExampleNode(
         id: UniqueId,
         name: String,
         source: TestSource,
+        private val marker: Marker? = null,
         private val action: Example.() -> Unit
-) : Example, Node<EngineExecutionContext>, AbstractTestDescriptor(id, name, source) {
+) : Example, Markable, Node<EngineExecutionContext>, AbstractTestDescriptor(id, name, source) {
 
     companion object {
         val TYPE = TestDescriptor.Type.TEST
@@ -24,21 +26,23 @@ internal class ExampleNode(
 
     override fun getType() = TYPE
 
+    override fun marked(marker: Marker) = marker == this.marker
+
+    override fun shouldBeSkipped(context: EngineExecutionContext) = marker.toSkipResult(context)
+
     override fun before(context: EngineExecutionContext): EngineExecutionContext {
         parentGroups.reversed().forEach { it.executeBeforeEach() }
 
-        return super.before(context)
+        return context
     }
 
     override fun execute(context: EngineExecutionContext, dynamicTestExecutor: Node.DynamicTestExecutor): EngineExecutionContext {
         action.invoke(BlankExample)
 
-        return super.execute(context, dynamicTestExecutor)
+        return context
     }
 
     override fun after(context: EngineExecutionContext) {
-        super.after(context)
-
         parentGroups.forEach { it.executeAfterEach() }
     }
 

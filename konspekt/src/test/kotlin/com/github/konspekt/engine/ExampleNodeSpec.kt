@@ -10,6 +10,8 @@ class ExampleNodeSpec : Spec({
 
     val env by memoized { Environment() }
 
+    val context = EngineExecutionContext(markersAvailable = emptySet())
+
     it("returns declared type") {
         assertThat(env.node.type).isEqualTo(ExampleNode.TYPE)
     }
@@ -17,7 +19,7 @@ class ExampleNodeSpec : Spec({
     context("before") {
 
         beforeEach {
-            env.node.before(EngineExecutionContext())
+            env.node.before(context)
         }
 
         it("calls grandparent before each, then parent before each") {
@@ -32,7 +34,7 @@ class ExampleNodeSpec : Spec({
     context("execute") {
 
         beforeEach {
-            env.node.execute(EngineExecutionContext(), mock())
+            env.node.execute(context, mock())
         }
 
         it("calls action") {
@@ -43,7 +45,7 @@ class ExampleNodeSpec : Spec({
     context("after") {
 
         beforeEach {
-            env.node.after(EngineExecutionContext())
+            env.node.after(context)
         }
 
         it("calls parent after each, then grandparent after each") {
@@ -80,7 +82,7 @@ class ExampleNodeSpec : Spec({
         }
 
         val nodeAction = mock<Example.() -> Unit>()
-        internal val node = ExampleNode(ID, "Node", SOURCE, nodeAction)
+        internal val node = ExampleNode(ID, "Node", SOURCE, null, nodeAction)
 
         init {
             nodeParent.setParent(nodeGrandParent)

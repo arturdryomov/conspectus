@@ -1,5 +1,6 @@
 package com.github.konspekt.engine
 
+import com.github.konspekt.Marker
 import com.github.konspekt.Spec
 import org.junit.platform.commons.util.ClassFilter
 import org.junit.platform.commons.util.ReflectionUtils
@@ -13,7 +14,7 @@ import org.junit.platform.engine.support.descriptor.EngineDescriptor
 import org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine
 import org.junit.platform.engine.support.hierarchical.EngineExecutionContext as JUnitEngineExecutionContext
 
-internal class EngineExecutionContext : JUnitEngineExecutionContext
+internal data class EngineExecutionContext(val markersAvailable: Set<Marker>) : JUnitEngineExecutionContext
 
 internal class Engine : HierarchicalTestEngine<EngineExecutionContext>() {
 
@@ -22,9 +23,9 @@ internal class Engine : HierarchicalTestEngine<EngineExecutionContext>() {
         private const val NAME = "Konspekt"
     }
 
-    override fun getId() = ID
+    private lateinit var markersAvailable: Set<Marker>
 
-    override fun createExecutionContext(request: ExecutionRequest) = EngineExecutionContext()
+    override fun getId() = ID
 
     override fun discover(request: EngineDiscoveryRequest, rootId: UniqueId): TestDescriptor {
         val root = EngineDescriptor(rootId, NAME)
@@ -32,6 +33,8 @@ internal class Engine : HierarchicalTestEngine<EngineExecutionContext>() {
         discoverSpecs(request)
                 .map { createSpecRoot(rootId, it) }
                 .forEach { root.addChild(it) }
+
+        markersAvailable = Marker.values().filter { root.markerAvailable(marker = it) }.toSet()
 
         return root
     }
@@ -72,4 +75,6 @@ internal class Engine : HierarchicalTestEngine<EngineExecutionContext>() {
             spec.action.invoke(it)
         }
     }
+
+    override fun createExecutionContext(request: ExecutionRequest) = EngineExecutionContext(markersAvailable)
 }

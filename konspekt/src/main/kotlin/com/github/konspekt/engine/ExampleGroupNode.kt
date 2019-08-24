@@ -2,6 +2,7 @@ package com.github.konspekt.engine
 
 import com.github.konspekt.Example
 import com.github.konspekt.ExampleGroup
+import com.github.konspekt.Marker
 import com.github.konspekt.Memoized
 import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestSource
@@ -9,15 +10,15 @@ import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
 import org.junit.platform.engine.support.descriptor.FilePosition
 import org.junit.platform.engine.support.descriptor.FileSource
-import org.junit.platform.engine.support.hierarchical.Node
 import java.io.File
 
 internal class ExampleGroupNode(
         id: UniqueId,
         name: String,
         source: TestSource,
+        private val marker: Marker? = null,
         private val action: ExampleGroup.() -> Unit = {}
-) : ExampleGroup, Node<EngineExecutionContext>, AbstractTestDescriptor(id, name, source) {
+) : ExampleGroup, AbstractTestDescriptor(id, name, source) {
 
     companion object {
         val TYPE = TestDescriptor.Type.CONTAINER
@@ -25,18 +26,18 @@ internal class ExampleGroupNode(
 
     override fun getType() = TYPE
 
-    override fun exampleGroup(name: String, action: ExampleGroup.() -> Unit) {
-        val child = ExampleGroupNode(uniqueId.childId(TYPE, name), name, source(), action).also {
-            it.action.invoke(it)
-        }
+    override fun exampleGroup(name: String, marker: Marker?, action: ExampleGroup.() -> Unit) {
+        val id = uniqueId.childId(TYPE, name)
 
-        appendChild(child)
+        appendChild(ExampleGroupNode(id, name, source(), marker.nested(this.marker), action).also {
+            it.action.invoke(it)
+        })
     }
 
-    override fun example(name: String, action: Example.() -> Unit) {
-        val child = ExampleNode(uniqueId.childId(ExampleNode.TYPE, name), name, source(), action)
+    override fun example(name: String, marker: Marker?, action: Example.() -> Unit) {
+        val id = uniqueId.childId(ExampleNode.TYPE, name)
 
-        appendChild(child)
+        appendChild(ExampleNode(id, name, source(), marker.nested(this.marker), action))
     }
 
     private fun source(): TestSource {
