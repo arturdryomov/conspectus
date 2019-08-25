@@ -8,9 +8,8 @@ import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestSource
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
+import org.junit.platform.engine.support.descriptor.ClassSource
 import org.junit.platform.engine.support.descriptor.FilePosition
-import org.junit.platform.engine.support.descriptor.FileSource
-import java.io.File
 
 internal class ExampleGroupNode(
         id: UniqueId,
@@ -42,18 +41,16 @@ internal class ExampleGroupNode(
 
     private fun source(): TestSource {
         // Actions are lambdas so we are looking until we find one.
-        val stackTrace = Thread.currentThread().stackTrace.find { it.methodName == "invoke" }
+        val call = Thread.currentThread().stackTrace.find { it.methodName == "invoke" }
+        val parentSource = source.get()
 
-        return if (stackTrace == null) {
-            return source.get()
-        } else {
-            val file = File(stackTrace.fileName)
-            val filePosition = FilePosition.from(stackTrace.lineNumber)
-
-            // IJ ignores file position for every source except the file one.
+        return if (call != null && parentSource is ClassSource) {
+            // IJ ignores file position for every source except the file one at this point.
             // Reference: JUnit5TestExecutionListener#getLocationHintValue
             // https://youtrack.jetbrains.com/issue/IDEA-218420
-            FileSource.from(file, filePosition)
+            ClassSource.from(parentSource.javaClass, FilePosition.from(call.lineNumber))
+        } else {
+            parentSource
         }
     }
 
