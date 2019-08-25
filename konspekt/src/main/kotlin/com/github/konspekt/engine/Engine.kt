@@ -2,6 +2,7 @@ package com.github.konspekt.engine
 
 import com.github.konspekt.Marker
 import com.github.konspekt.Spec
+import com.github.konspekt.SpecListener
 import org.junit.platform.commons.util.ClassFilter
 import org.junit.platform.commons.util.ReflectionUtils
 import org.junit.platform.engine.EngineDiscoveryRequest
@@ -50,6 +51,8 @@ internal class Engine : HierarchicalTestEngine<EngineExecutionContext>() {
 
     private class SpecClassResolver(private val classFilter: ClassFilter) : SelectorResolver {
 
+        private val listeners = ServiceLoader.load(SpecListener::class.java)
+
         override fun resolve(selector: ClassSelector, context: SelectorResolver.Context): SelectorResolver.Resolution {
             return if (classFilter.match(selector.javaClass)) {
                 val descriptor = context.addToParent { parent ->
@@ -69,8 +72,13 @@ internal class Engine : HierarchicalTestEngine<EngineExecutionContext>() {
             val id = rootId.childId(ExampleGroupNode.TYPE, name)
             val source = ClassSource.from(spec.javaClass)
 
-            return ExampleGroupNode(id, name, source).also {
-                spec.action.invoke(it)
+            return ExampleGroupNode(id, name, source).also { node ->
+                listeners.forEach {
+                    node.beforeEach { it.onBeforeEach() }
+                    node.afterEach { it.onAfterEach() }
+                }
+
+                spec.action.invoke(node)
             }
         }
     }

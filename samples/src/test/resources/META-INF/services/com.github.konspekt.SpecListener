@@ -1,0 +1,2 @@
+com.github.konspekt.samples.listener.CounterSpecListener
+com.github.konspekt.samples.listener.MockitoSpecListener
