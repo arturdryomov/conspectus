@@ -1,3 +1,5 @@
+@file:Suppress("nothing_to_inline")
+
 package com.github.konspekt
 
 import org.mockito.Mockito

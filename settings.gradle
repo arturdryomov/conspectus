@@ -1,4 +1,0 @@
-rootProject.name = 'Konspekt'
-
-include 'konspekt'
-include 'samples'
