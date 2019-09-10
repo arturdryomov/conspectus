@@ -1,14 +1,12 @@
 package com.github.konspekt.engine
 
 import com.github.konspekt.Spec
-import com.github.konspekt.engine.integration.CounterListener
 import com.github.konspekt.engine.integration.MarkedSpec
 import com.github.konspekt.engine.integration.NestedSpec
 import com.github.konspekt.engine.integration.group.Group
 import com.github.konspekt.engine.integration.group.GroupASpec
 import com.github.konspekt.engine.integration.group.GroupBSpec
 import com.github.konspekt.engine.integration.group.GroupCSpec
-import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Condition
 import org.junit.platform.engine.discovery.ClassNameFilter
 import org.junit.platform.engine.discovery.DiscoverySelectors
@@ -71,27 +69,6 @@ class IntegrationSpec : Spec({
                     .filters(ClassNameFilter.excludeClassNamePatterns(".*${GroupASpec.CLASS.simpleName}.*"))
                     .execute()
                     .assertEvents(GroupCSpec.EVENTS, GroupBSpec.EVENTS)
-        }
-    }
-
-    describe("listener") {
-
-        context("execute everything in package") {
-
-            beforeEach {
-                CounterListener.resetCounters()
-
-                EngineTestKit
-                        .engine(engineId)
-                        .selectors(DiscoverySelectors.selectPackage(Group.PACKAGE))
-                        .execute()
-            }
-
-            it("invokes listener") {
-                assertThat(CounterListener.COUNTER_BEFORE_EACH.get())
-                        .isEqualTo(CounterListener.COUNTER_AFTER_EACH.get())
-                        .isEqualTo(3)
-            }
         }
     }
 })
