@@ -11,10 +11,18 @@ import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
 import org.junit.platform.engine.support.descriptor.ClassSource
 import org.junit.platform.engine.support.descriptor.FilePosition
 
+// IJ ignores file position for every source except the file one at this point.
+// Reference: JUnit5TestExecutionListener#getLocationHintValue
+// https://youtrack.jetbrains.com/issue/IDEA-218420
+// Also Gradle hangs on class node sources with or without a file position.
+// Reference: https://github.com/gradle/gradle/issues/5737
+// For now it is fine to have a top-level source for class and none for nodes
+// but it would be nice to resolve this in the future.
+
 internal class ExampleGroupNode(
         id: UniqueId,
         name: String,
-        source: TestSource,
+        source: TestSource?,
         private val marker: Marker? = null,
         private val action: ExampleGroup.() -> Unit = {}
 ) : ExampleGroup, AbstractTestDescriptor(id, name, source) {
@@ -28,7 +36,7 @@ internal class ExampleGroupNode(
     override fun exampleGroup(name: String, marker: Marker?, action: ExampleGroup.() -> Unit) {
         val id = uniqueId.childId(TYPE, name)
 
-        appendChild(ExampleGroupNode(id, name, source(), marker.nested(this.marker), action).also {
+        appendChild(ExampleGroupNode(id, name, null, marker.nested(this.marker), action).also {
             it.action.invoke(it)
         })
     }
@@ -36,7 +44,7 @@ internal class ExampleGroupNode(
     override fun example(name: String, marker: Marker?, action: Example.() -> Unit) {
         val id = uniqueId.childId(ExampleNode.TYPE, name)
 
-        appendChild(ExampleNode(id, name, source(), marker.nested(this.marker), action))
+        appendChild(ExampleNode(id, name, null, marker.nested(this.marker), action))
     }
 
     private fun source(): TestSource {

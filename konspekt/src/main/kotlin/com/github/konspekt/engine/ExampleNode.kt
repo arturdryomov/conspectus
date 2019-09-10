@@ -11,7 +11,7 @@ import org.junit.platform.engine.support.hierarchical.Node
 internal class ExampleNode(
         id: UniqueId,
         name: String,
-        source: TestSource,
+        source: TestSource?,
         private val marker: Marker? = null,
         private val action: Example.() -> Unit
 ) : Example, Markable, Node<EngineExecutionContext>, AbstractTestDescriptor(id, name, source) {
