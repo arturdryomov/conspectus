@@ -47,27 +47,12 @@ internal class ExampleGroupNode(
         appendChild(ExampleNode(id, name, null, marker.nested(this.marker), action))
     }
 
-    private fun source(): TestSource {
-        // Actions are lambdas so we are looking until we find one.
-        val call = Thread.currentThread().stackTrace.find { it.methodName == "invoke" }
-        val parentSource = source.get()
-
-        return if (call != null && parentSource is ClassSource) {
-            // IJ ignores file position for every source except the file one at this point.
-            // Reference: JUnit5TestExecutionListener#getLocationHintValue
-            // https://youtrack.jetbrains.com/issue/IDEA-218420
-            ClassSource.from(parentSource.javaClass, FilePosition.from(call.lineNumber))
-        } else {
-            parentSource
-        }
-    }
-
     private fun appendChild(child: TestDescriptor) {
-        if (children.any { it.displayName == child.displayName }) {
-            throw IllegalStateException("[${child.displayName}] repeating on the same hierarchy level. This is blocked to avoid possible confusion.")
-        } else {
-            addChild(child)
+        check(children.none { it.displayName == child.displayName }) {
+            "[${child.displayName}] repeating on the same hierarchy level. This is blocked to avoid collisions."
         }
+
+        addChild(child)
     }
 
     private val beforeEachStorage = mutableSetOf<() -> Unit>()
