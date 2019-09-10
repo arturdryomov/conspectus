@@ -1,3 +1,3 @@
-rootProject.name = "Konspekt"
+rootProject.name = "Conspectus"
 
-include("konspekt", "samples")
+include("conspectus", "samples")

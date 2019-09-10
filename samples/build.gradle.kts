@@ -3,7 +3,7 @@ dependencies {
 }
 
 dependencies {
-    testImplementation(project(":konspekt"))
+    testImplementation(project(":conspectus"))
 
     testImplementation(Library.AssertJCore)
     testImplementation(Library.JUnitPlatformLauncher)

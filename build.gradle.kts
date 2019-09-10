@@ -33,7 +33,7 @@ subprojects {
         reports.junitXml.isEnabled = false
 
         useJUnitPlatform {
-            includeEngines("konspekt")
+            includeEngines("conspectus")
         }
     }
 }

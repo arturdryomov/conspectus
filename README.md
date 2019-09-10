@@ -1,4 +1,4 @@
-# Konspekt
+# Conspectus
 
 ## FAQ
 
