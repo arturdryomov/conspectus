@@ -22,12 +22,14 @@ enum class Library(group: String, artifact: String, internal val version: Versio
 
 enum class Plugin(val id: String, group: String, artifact: String, version: Version) {
     Kotlin("org.jetbrains.kotlin.jvm", "org.jetbrains.kotlin", "kotlin-gradle-plugin", Version.Kotlin),
+    Versions("com.github.ben-manes.versions", "com.github.ben-manes", "gradle-versions-plugin", Version.Versions),
     ;
 
     internal val notation = "$group:$artifact:${version.value}"
 
     private enum class Version(val value: String) {
         Kotlin(Library.KotlinStd.version.value),
+        Versions("0.25.0"),
     }
 }
 

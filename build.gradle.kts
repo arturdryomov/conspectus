@@ -3,11 +3,17 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 buildscript {
     repositories {
         mavenCentral()
+        jcenter()
     }
 
     dependencies {
         plugin(Plugin.Kotlin)
+        plugin(Plugin.Versions)
     }
+}
+
+apply {
+    plugin(Plugin.Versions.id)
 }
 
 subprojects {
