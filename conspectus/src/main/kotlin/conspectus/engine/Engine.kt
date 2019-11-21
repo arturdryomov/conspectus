@@ -33,7 +33,11 @@ internal class Engine : HierarchicalTestEngine<EngineExecutionContext>() {
     override fun discover(request: EngineDiscoveryRequest, rootId: UniqueId) = EngineDescriptor(rootId, NAME).apply {
         discover(this, request)
 
-        markersAvailable = Marker.values().filter { this.markerAvailable(marker = it) }.toSet()
+        markersAvailable = Marker.values().filter { this.markerAvailable(marker = it) }.let { markers ->
+            EnumSet.noneOf(Marker::class.java).apply {
+                addAll(markers)
+            }
+        }
     }
 
     private fun discover(root: EngineDescriptor, request: EngineDiscoveryRequest) {
