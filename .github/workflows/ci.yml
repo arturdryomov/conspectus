@@ -1,0 +1,19 @@
+name: "CI"
+
+on:
+  pull_request:
+    branches:
+    - "*"
+
+jobs:
+  run:
+    runs-on: "ubuntu-18.04"
+    steps:
+    - name: "Checkout the source code"
+      uses: actions/checkout@v1
+    - name: "Install JDK"
+      uses: actions/setup-java@v1
+      with:
+        java-version: 8
+    - name: "Run"
+      run: "./gradlew build"
