@@ -13,7 +13,7 @@ class CounterSpec : Spec({
     }
 
     it("does not track analytics event") {
-        verifyZeroInteractions(env.analytics)
+        verifyNoInteractions(env.analytics)
     }
 
     context("increment") {
