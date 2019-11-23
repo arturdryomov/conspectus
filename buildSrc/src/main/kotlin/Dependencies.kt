@@ -13,10 +13,10 @@ enum class Library(group: String, artifact: String, internal val version: Versio
     internal val notation = "$group:$artifact:${version.value}"
 
     internal enum class Version(val value: String) {
-        AssertJ("3.13.2"),
+        AssertJ("3.14.0"),
         JUnitPlatform("1.5.2"),
-        Kotlin("1.3.50"),
-        Mockito("3.0.0"),
+        Kotlin("1.3.60"),
+        Mockito("3.1.0"),
     }
 }
 
@@ -29,7 +29,7 @@ enum class Plugin(val id: String, group: String, artifact: String, version: Vers
 
     private enum class Version(val value: String) {
         Kotlin(Library.KotlinStd.version.value),
-        Versions("0.25.0"),
+        Versions("0.27.0"),
     }
 }
 

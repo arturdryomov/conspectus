@@ -8,7 +8,7 @@ class MemoizedSpec : Spec({
     val env by memoized { Environment() }
 
     it("does not call creator") {
-        verifyZeroInteractions(env.creator)
+        verifyNoInteractions(env.creator)
     }
 
     context("access") {
@@ -34,7 +34,7 @@ class MemoizedSpec : Spec({
             }
 
             it("does not call creator") {
-                verifyZeroInteractions(env.creator)
+                verifyNoInteractions(env.creator)
             }
         }
 
