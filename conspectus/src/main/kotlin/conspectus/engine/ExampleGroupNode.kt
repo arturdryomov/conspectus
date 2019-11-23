@@ -8,8 +8,6 @@ import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.TestSource
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
-import org.junit.platform.engine.support.descriptor.ClassSource
-import org.junit.platform.engine.support.descriptor.FilePosition
 
 // IJ ignores file position for every source except the file one at this point.
 // Reference: JUnit5TestExecutionListener#getLocationHintValue
