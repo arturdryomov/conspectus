@@ -44,7 +44,7 @@ internal class ExampleGroupNode(
     override fun example(name: String, marker: Marker?, action: Example.() -> Unit) {
         val id = uniqueId.childId(ExampleNode.TYPE, name)
 
-        appendChild(ExampleNode(id, name, null, marker.nested(this.marker), action))
+        appendChild(ExampleNode(id, name, marker.nested(this.marker), action))
     }
 
     private fun appendChild(child: TestDescriptor) {
