@@ -8,10 +8,10 @@ class Memoized<out T : Any>(private val creator: () -> T) : ReadOnlyProperty<Any
     private var value: T? = null
 
     override fun getValue(thisRef: Any?, property: KProperty<*>): T {
-        return value ?: creator.invoke().apply { value = this }
+        return value ?: creator().apply { value = this }
     }
 
-    fun reset() {
+    internal fun reset() {
         value = null
     }
 }

@@ -43,7 +43,7 @@ internal class ExampleNode(
     }
 
     override fun execute(context: EngineExecutionContext, dynamicTestExecutor: Node.DynamicTestExecutor): EngineExecutionContext {
-        action.invoke(BlankExample)
+        action(BlankExample)
 
         return context
     }
