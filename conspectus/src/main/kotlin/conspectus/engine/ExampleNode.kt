@@ -10,7 +10,7 @@ import org.junit.platform.engine.support.hierarchical.Node
 internal class ExampleNode(
         id: UniqueId,
         name: String,
-        private val marker: Marker? = null,
+        override val marker: Marker? = null,
         private val action: Example.() -> Unit
 ) : Example, Markable, Node<EngineExecutionContext>, AbstractTestDescriptor(id, name) {
 
@@ -31,8 +31,6 @@ internal class ExampleNode(
             emptyList()
         }
     }
-
-    override fun marked(marker: Marker) = marker == this.marker
 
     override fun getType() = TYPE
 

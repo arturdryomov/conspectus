@@ -34,17 +34,19 @@ internal class ExampleGroupNode(
     override fun getType() = TYPE
 
     override fun exampleGroup(name: String, marker: Marker?, action: ExampleGroup.() -> Unit) {
-        val id = uniqueId.childId(TYPE, name)
+        val nodeId = uniqueId.childId(TYPE, name)
+        val nodeMarker = marker.nested(this.marker)
 
-        appendChild(ExampleGroupNode(id, name, null, marker.nested(this.marker), action).also {
+        appendChild(ExampleGroupNode(nodeId, name, null, nodeMarker, action).also {
             it.action.invoke(it)
         })
     }
 
     override fun example(name: String, marker: Marker?, action: Example.() -> Unit) {
-        val id = uniqueId.childId(ExampleNode.TYPE, name)
+        val nodeId = uniqueId.childId(ExampleNode.TYPE, name)
+        val nodeMarker = marker.nested(this.marker)
 
-        appendChild(ExampleNode(id, name, marker.nested(this.marker), action))
+        appendChild(ExampleNode(nodeId, name, nodeMarker, action))
     }
 
     private fun appendChild(child: TestDescriptor) {
