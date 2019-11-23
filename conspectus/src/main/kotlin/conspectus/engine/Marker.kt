@@ -5,20 +5,14 @@ import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.support.hierarchical.Node.SkipResult
 
 internal interface Markable {
-    fun marked(marker: Marker): Boolean
+    val marker: Marker?
 }
 
-internal fun TestDescriptor.markerAvailable(descriptor: TestDescriptor = this, marker: Marker): Boolean {
-    if (descriptor.children.isEmpty()) {
-        return false
-    }
+internal fun TestDescriptor.markerAvailable(marker: Marker): Boolean = children.any {
+    val matchDirect = it is Markable && it.marker == marker
+    val matchNested = it.markerAvailable(marker)
 
-    return descriptor.children.any {
-        val matchDirect = if (it is Markable) it.marked(marker) else false
-        val matchNested = it.markerAvailable(marker = marker)
-
-        matchDirect || matchNested
-    }
+    matchDirect || matchNested
 }
 
 internal fun Marker?.nested(parentMarker: Marker?): Marker? = if (this == Marker.Exclude || parentMarker == null) {
