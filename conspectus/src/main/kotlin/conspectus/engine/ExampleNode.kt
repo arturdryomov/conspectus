@@ -3,7 +3,6 @@ package conspectus.engine
 import conspectus.Example
 import conspectus.Marker
 import org.junit.platform.engine.TestDescriptor
-import org.junit.platform.engine.TestSource
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.support.descriptor.AbstractTestDescriptor
 import org.junit.platform.engine.support.hierarchical.Node
@@ -11,10 +10,9 @@ import org.junit.platform.engine.support.hierarchical.Node
 internal class ExampleNode(
         id: UniqueId,
         name: String,
-        source: TestSource?,
         private val marker: Marker? = null,
         private val action: Example.() -> Unit
-) : Example, Markable, Node<EngineExecutionContext>, AbstractTestDescriptor(id, name, source) {
+) : Example, Markable, Node<EngineExecutionContext>, AbstractTestDescriptor(id, name) {
 
     companion object {
         val TYPE = TestDescriptor.Type.TEST
@@ -24,14 +22,24 @@ internal class ExampleNode(
 
     private val parentGroups by lazy { parentGroups() }
 
-    override fun getType() = TYPE
+    private fun TestDescriptor.parentGroups(): List<ExampleGroupNode> {
+        val parentNode: TestDescriptor? = parent.orElse(null)
+
+        return if (parentNode is ExampleGroupNode) {
+            parentNode.parentGroups() + parentNode
+        } else {
+            emptyList()
+        }
+    }
 
     override fun marked(marker: Marker) = marker == this.marker
+
+    override fun getType() = TYPE
 
     override fun shouldBeSkipped(context: EngineExecutionContext) = marker.toSkipResult(context)
 
     override fun before(context: EngineExecutionContext): EngineExecutionContext {
-        parentGroups.reversed().forEach { it.executeBeforeEach() }
+        parentGroups.forEach { it.executeBeforeEach() }
 
         return context
     }
@@ -43,20 +51,6 @@ internal class ExampleNode(
     }
 
     override fun after(context: EngineExecutionContext) {
-        parentGroups.forEach { it.executeAfterEach() }
-    }
-
-    private fun parentGroups(node: TestDescriptor = this): List<ExampleGroupNode> {
-        val parentNode = if (node.parent.isPresent) {
-            node.parent.get()
-        } else {
-            null
-        }
-
-        return if (parentNode is ExampleGroupNode) {
-            listOf(parentNode) + parentGroups(parentNode)
-        } else {
-            emptyList()
-        }
+        parentGroups.reversed().forEach { it.executeAfterEach() }
     }
 }

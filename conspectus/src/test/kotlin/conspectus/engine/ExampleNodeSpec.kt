@@ -3,7 +3,6 @@ package conspectus.engine
 import conspectus.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.platform.engine.UniqueId
-import org.junit.platform.engine.support.descriptor.ClassSource
 import org.mockito.Mockito
 
 class ExampleNodeSpec : Spec({
@@ -60,15 +59,15 @@ class ExampleNodeSpec : Spec({
 }) {
 
     class Environment {
+
         companion object {
             private val ID = UniqueId.root("node", "node")
-            private val SOURCE = ClassSource.from(ExampleNodeSpec::class.java)
         }
 
         val nodeGrandParentBeforeEach = mock<() -> Unit>()
         val nodeGrandParentAfterEach = mock<() -> Unit>()
 
-        private val nodeGrandParent = (ExampleGroupNode(ID, "Node grandparent", SOURCE) {}).apply {
+        private val nodeGrandParent = (ExampleGroupNode(ID, "Node grandparent", null) {}).apply {
             beforeEach(nodeGrandParentBeforeEach)
             afterEach(nodeGrandParentAfterEach)
         }
@@ -76,13 +75,13 @@ class ExampleNodeSpec : Spec({
         val nodeParentBeforeEach = mock<() -> Unit>()
         val nodeParentAfterEach = mock<() -> Unit>()
 
-        private val nodeParent = (ExampleGroupNode(ID, "Node parent", SOURCE) {}).apply {
+        private val nodeParent = (ExampleGroupNode(ID, "Node parent", null) {}).apply {
             beforeEach(nodeParentBeforeEach)
             afterEach(nodeParentAfterEach)
         }
 
         val nodeAction = mock<Example.() -> Unit>()
-        internal val node = ExampleNode(ID, "Node", SOURCE, null, nodeAction)
+        internal val node = ExampleNode(ID, "Node", null, nodeAction)
 
         init {
             nodeParent.setParent(nodeGrandParent)
