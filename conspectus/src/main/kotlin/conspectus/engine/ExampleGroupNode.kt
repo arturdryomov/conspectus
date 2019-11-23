@@ -38,7 +38,7 @@ internal class ExampleGroupNode(
         val nodeMarker = marker.nested(this.marker)
 
         appendChild(ExampleGroupNode(nodeId, name, null, nodeMarker, action).also {
-            it.action.invoke(it)
+            it.action(it)
         })
     }
 
@@ -75,11 +75,11 @@ internal class ExampleGroupNode(
     }
 
     fun executeBeforeEach() {
-        beforeEachStorage.forEach { it.invoke() }
+        beforeEachStorage.forEach { it() }
     }
 
     fun executeAfterEach() {
-        afterEachStorage.forEach { it.invoke() }
+        afterEachStorage.forEach { it() }
 
         memoizedStorage.forEach { it.reset() }
     }

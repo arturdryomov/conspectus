@@ -74,7 +74,7 @@ internal class Engine : HierarchicalTestEngine<EngineExecutionContext>() {
             val source = ClassSource.from(spec.javaClass)
 
             return ExampleGroupNode(id, name, source).also { node ->
-                spec.action.invoke(node)
+                spec.action(node)
             }
         }
     }
