@@ -73,12 +73,12 @@ internal class ExampleGroupNode(
     }
 
     fun executeBeforeEach() {
+        memoizedStorage.forEach { it.setUp() }
         beforeEachStorage.forEach { it() }
     }
 
     fun executeAfterEach() {
         afterEachStorage.forEach { it() }
-
-        memoizedStorage.forEach { it.reset() }
+        memoizedStorage.forEach { it.tearDown() }
     }
 }
