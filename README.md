@@ -1,5 +1,36 @@
 # Conspectus
 
+A specification test engine for Kotlin based on the JUnit Platform.
+Inspirations: [RSpec for Ruby](https://en.wikipedia.org/wiki/RSpec) and [Quick for Swift](https://github.com/Quick/Quick/).
+
+Specifications are a declarative, scalable alternative to xUnit-style tests:
+
+```kotlin
+val counter by memoized { Counter() }
+
+context("increment") {
+
+    beforeEach {
+        counter.increment()
+    }
+
+    it("changes value to 1") {
+        assertThat(counter.current()).isEqualTo(1)
+    }
+
+    context("decrement") {
+
+        beforeEach {
+            counter.decrement()
+        }
+
+        it("changes value to 0") {
+            assertThat(counter.current()).isEqualTo(0)
+        }
+    }
+}
+```
+
 ## FAQ
 
 ### Should I use this?
