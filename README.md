@@ -31,6 +31,10 @@ context("increment") {
 }
 ```
 
+* [Motivation](docs/motivation.md)
+* [Usage](docs/usage.md)
+* [Recipes](docs/recipes.md)
+
 ## FAQ
 
 ### Should I use this?
