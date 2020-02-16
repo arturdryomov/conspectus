@@ -14,7 +14,7 @@ enum class Library(group: String, artifact: String, internal val version: Versio
 
     internal enum class Version(val value: String) {
         AssertJ("3.14.0"),
-        JUnitPlatform("1.5.2"),
+        JUnitPlatform("1.6.0"),
         Kotlin("1.3.60"),
         Mockito("3.1.0"),
     }
