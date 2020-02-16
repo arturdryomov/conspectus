@@ -27,7 +27,7 @@ class IntegrationSpec : Spec({
                 event(engine(), finishedSuccessfully())
         )
 
-        all().assertEventsMatchExactly(*engineEvents)
+        allEvents().assertEventsMatchExactly(*engineEvents)
     }
 
     mapOf(MarkedSpec.CLASS to MarkedSpec.EVENTS, NestedSpec.CLASS to NestedSpec.EVENTS).forEach { (specClass, specEvents) ->
